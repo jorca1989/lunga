@@ -47,7 +47,7 @@ export default function SignInScreen() {
     setLoading(true);
     try {
       console.log("[SignIn] === DIAGNOSTIC START ===");
-      console.log("[SignIn] publishableKey configured:", !!clerkPublishableKey);
+      console.log("[SignIn] publishableKey configured:", !!clerk.publishableKey);
       console.log("[SignIn] useSignIn hook return keys:", Object.keys(useSignInResult || {}));
       console.log("[SignIn] typeof signIn:", typeof signIn);
       if (signIn) {
