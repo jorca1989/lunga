@@ -51,15 +51,21 @@ export default function SignInScreen() {
         identifier: email.trim(),
         password,
       });
-      console.log("[SignIn] Result status:", result.status);
 
-      if (result.status === 'complete') {
-        console.log("[SignIn] Login complete. Activating session:", result.createdSessionId);
-        await setActive({ session: result.createdSessionId });
+      if (result.error) {
+        throw result.error;
+      }
+
+      const signInResource = result.signIn || result;
+      console.log("[SignIn] Resolved status:", signInResource?.status);
+
+      if (signInResource && signInResource.status === 'complete') {
+        console.log("[SignIn] Login complete. Activating session:", signInResource.createdSessionId);
+        await setActive({ session: signInResource.createdSessionId });
         router.replace('/');
       } else {
         console.log("[SignIn] Login status not complete:", JSON.stringify(result, null, 2));
-        Alert.alert('Erro', `Não foi possível fazer login (Estado: ${result.status}). Tente novamente.`);
+        Alert.alert('Erro', `Não foi possível fazer login (Estado: ${signInResource?.status || 'desconhecido'}). Tente novamente.`);
       }
     } catch (err: any) {
       console.error("[SignIn] Auth error caught:", err);

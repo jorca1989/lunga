@@ -96,14 +96,16 @@ export default function SignUpScreen() {
 
       if (result.error) throw result.error;
 
-      // Read state directly from the returned result object to avoid stale closures
-      if (result.status === 'complete') {
-        await setActive({ session: result.createdSessionId });
+      const signUpResource = result.signUp || result;
+
+      // Read state directly from the resolved signUpResource to avoid stale closures
+      if (signUpResource && signUpResource.status === 'complete') {
+        await setActive({ session: signUpResource.createdSessionId });
         router.replace('/');
       } else {
-        const statusStr = result.status;
-        const missingFields = result.missingFields ? JSON.stringify(result.missingFields) : 'nenhum';
-        const unverifiedFields = result.unverifiedFields ? JSON.stringify(result.unverifiedFields) : 'nenhum';
+        const statusStr = signUpResource?.status || 'desconhecido';
+        const missingFields = signUpResource?.missingFields ? JSON.stringify(signUpResource.missingFields) : 'nenhum';
+        const unverifiedFields = signUpResource?.unverifiedFields ? JSON.stringify(signUpResource.unverifiedFields) : 'nenhum';
         Alert.alert(
           'Erro de Registo',
           `Verificação incompleta.\nEstado: ${statusStr}\nCampos em falta: ${missingFields}\nCampos não verificados: ${unverifiedFields}`
@@ -115,13 +117,14 @@ export default function SignUpScreen() {
         setErrors({ code: 'Código incorrecto. Verifique o seu e-mail.' });
       } else if (code === 'already_verified' || err?.message?.includes('already verified') || err?.errors?.[0]?.message?.includes('already verified')) {
         // If already verified, check the status on the signUp object
-        if (signUp.status === 'complete') {
-          await setActive({ session: signUp.createdSessionId });
+        const signUpResource = signUp;
+        if (signUpResource && signUpResource.status === 'complete') {
+          await setActive({ session: signUpResource.createdSessionId });
           router.replace('/');
         } else {
-          const statusStr = signUp.status;
-          const missingFields = signUp.missingFields ? JSON.stringify(signUp.missingFields) : 'nenhum';
-          const unverifiedFields = signUp.unverifiedFields ? JSON.stringify(signUp.unverifiedFields) : 'nenhum';
+          const statusStr = signUpResource?.status || 'desconhecido';
+          const missingFields = signUpResource?.missingFields ? JSON.stringify(signUpResource.missingFields) : 'nenhum';
+          const unverifiedFields = signUpResource?.unverifiedFields ? JSON.stringify(signUpResource.unverifiedFields) : 'nenhum';
           Alert.alert(
             'Erro de Registo',
             `E-mail já verificado, mas o registo está incompleto.\nEstado: ${statusStr}\nCampos em falta: ${missingFields}\nCampos não verificados: ${unverifiedFields}`
