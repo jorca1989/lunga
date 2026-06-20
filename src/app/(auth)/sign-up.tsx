@@ -96,16 +96,14 @@ export default function SignUpScreen() {
 
       if (result.error) throw result.error;
 
-      const signUpResource = result.signUp || result;
-
-      // Read state directly from the resolved signUpResource to avoid stale closures
-      if (signUpResource && signUpResource.status === 'complete') {
-        await setActive({ session: signUpResource.createdSessionId });
+      // Read state directly from the resolved hook instance to avoid stale closures
+      if (signUp && signUp.status === 'complete') {
+        await setActive({ session: signUp.createdSessionId });
         router.replace('/');
       } else {
-        const statusStr = signUpResource?.status || 'desconhecido';
-        const missingFields = signUpResource?.missingFields ? JSON.stringify(signUpResource.missingFields) : 'nenhum';
-        const unverifiedFields = signUpResource?.unverifiedFields ? JSON.stringify(signUpResource.unverifiedFields) : 'nenhum';
+        const statusStr = signUp?.status || 'desconhecido';
+        const missingFields = signUp?.missingFields ? JSON.stringify(signUp.missingFields) : 'nenhum';
+        const unverifiedFields = signUp?.unverifiedFields ? JSON.stringify(signUp.unverifiedFields) : 'nenhum';
         Alert.alert(
           'Erro de Registo',
           `Verificação incompleta.\nEstado: ${statusStr}\nCampos em falta: ${missingFields}\nCampos não verificados: ${unverifiedFields}`
