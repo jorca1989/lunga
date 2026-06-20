@@ -30,7 +30,12 @@ export const uploadMedia = action({
       base64Data = match[2];
     }
 
-    const buffer = Buffer.from(base64Data, "base64");
+    const binaryString = atob(base64Data);
+    const len = binaryString.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
 
     const s3 = new S3Client({
       region: "auto",
@@ -48,7 +53,7 @@ export const uploadMedia = action({
       new PutObjectCommand({
         Bucket: R2_BUCKET,
         Key: filename,
-        Body: buffer,
+        Body: bytes,
         ContentType: mimeType,
       })
     );

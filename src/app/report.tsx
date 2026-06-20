@@ -46,6 +46,9 @@ export default function ReportScreen() {
   const [tempLatitude, setTempLatitude] = useState<number>(-8.8159);
   const [tempLongitude, setTempLongitude] = useState<number>(13.2922);
   const [isGeocodingMap, setIsGeocodingMap] = useState(false);
+  const [tempAddress, setTempAddress] = useState('');
+  const [tempReference, setTempReference] = useState('');
+  const [locationReference, setLocationReference] = useState('');
 
   const currentUser = useMockUser();
   const createReport = useMutation(api.reports.create);
@@ -195,16 +198,16 @@ export default function ReportScreen() {
   const handleOpenMapPicker = () => {
     setTempLatitude(latitude);
     setTempLongitude(longitude);
+    setTempAddress(locationName);
+    setTempReference(locationReference);
     setShowMapPicker(true);
   };
 
   const handleConfirmMapLocation = async () => {
-    setIsGeocodingMap(true);
-    const name = await reverseGeocode(tempLatitude, tempLongitude);
     setLatitude(tempLatitude);
     setLongitude(tempLongitude);
-    setLocationName(name);
-    setIsGeocodingMap(false);
+    setLocationName(tempAddress || `Lat: ${tempLatitude.toFixed(5)}, Lon: ${tempLongitude.toFixed(5)}`);
+    setLocationReference(tempReference);
     setShowMapPicker(false);
   };
 
@@ -228,6 +231,9 @@ export default function ReportScreen() {
       const online = !!netState.isConnected && netState.isInternetReachable !== false;
 
       const categoryString = selectedCategories.join(', ');
+      const fullLocationString = locationReference 
+        ? `${locationName} (Ref: ${locationReference})`
+        : locationName;
 
       if (!online) {
         const offlineImages = mediaList.filter(m => m.type === 'image').map(m => m.base64 || m.uri);
@@ -244,7 +250,7 @@ export default function ReportScreen() {
             image: offlineFirstImage,
             images: offlineImages,
             videos: offlineVideos,
-            location: locationName,
+            location: fullLocationString,
             latitude,
             longitude,
           });
@@ -252,7 +258,7 @@ export default function ReportScreen() {
           Alert.alert(
             'Sem Internet',
             'A sua ocorrência foi guardada offline e será enviada automaticamente assim que recuperar a ligação à Internet.',
-            [{ text: 'OK', onPress: () => { setSelectedCategories([]); setDescription(''); setMediaList([]); } }]
+            [{ text: 'OK', onPress: () => { setSelectedCategories([]); setDescription(''); setMediaList([]); setLocationReference(''); } }]
           );
         } else {
           setIsSubmitting(false);
@@ -294,18 +300,18 @@ export default function ReportScreen() {
           image: firstImage,
           images: uploadedImages,
           videos: uploadedVideos,
-          location: locationName,
+          location: fullLocationString,
           latitude,
           longitude,
         });
       } else {
-        console.log('Mock Report Submitted:', { category: categoryString, description, latitude, longitude });
+        console.log('Mock Report Submitted:', { category: categoryString, description, latitude, longitude, location: fullLocationString });
       }
       setIsSubmitting(false);
       Alert.alert(
         'Sucesso',
         'Ocorrência registada com sucesso! Receberá notificações sobre o progresso.',
-        [{ text: 'OK', onPress: () => { setSelectedCategories([]); setDescription(''); setMediaList([]); } }]
+        [{ text: 'OK', onPress: () => { setSelectedCategories([]); setDescription(''); setMediaList([]); setLocationReference(''); } }]
       );
     } catch (err) {
       console.error(err);
@@ -386,6 +392,11 @@ export default function ReportScreen() {
             <ThemedText type="code" themeColor="textSecondary" numberOfLines={2}>
               {locationReady ? locationName : 'Capturando GPS...'}
             </ThemedText>
+            {!!locationReference && (
+              <ThemedText type="code" themeColor="textSecondary" style={{ marginTop: 2, fontStyle: 'italic' }}>
+                Ref: {locationReference}
+              </ThemedText>
+            )}
           </View>
           {locationReady ? (
             <Pressable onPress={handleOpenMapPicker} style={styles.adjustButton}>
@@ -536,17 +547,52 @@ export default function ReportScreen() {
             <LeafletMobileMap
               initialCenter={{ latitude: tempLatitude, longitude: tempLongitude }}
               pinCoordinates={{ latitude: tempLatitude, longitude: tempLongitude }}
-              onMapClick={(coords) => {
+              onMapClick={async (coords) => {
                 setTempLatitude(coords.latitude);
                 setTempLongitude(coords.longitude);
+                try {
+                  const name = await reverseGeocode(coords.latitude, coords.longitude);
+                  setTempAddress(name);
+                } catch (e) {
+                  console.log("Map click geocode failed:", e);
+                }
               }}
               zoom={14}
             />
           </View>
 
-          <View style={[styles.mapPickerFooter, { backgroundColor: 'rgba(0,0,0,0.85)' }]}>
+          {/* Manual Address and Reference Inputs */}
+          <View style={[styles.mapPickerInputsContainer, { backgroundColor: '#111' }]}>
+            <View style={{ marginBottom: 12 }}>
+              <ThemedText style={{ color: '#FFF', fontSize: 12, fontWeight: '700', marginBottom: 4 }}>
+                Endereço Confirmado
+              </ThemedText>
+              <TextInput
+                style={styles.mapPickerInput}
+                value={tempAddress}
+                onChangeText={setTempAddress}
+                placeholder="Endereço da ocorrência..."
+                placeholderTextColor="#666"
+              />
+            </View>
+
+            <View style={{ marginBottom: 4 }}>
+              <ThemedText style={{ color: '#FFF', fontSize: 12, fontWeight: '700', marginBottom: 4 }}>
+                Ponto de Referência
+              </ThemedText>
+              <TextInput
+                style={styles.mapPickerInput}
+                value={tempReference}
+                onChangeText={setTempReference}
+                placeholder="Ex: Perto do chafariz, ao lado da paragem..."
+                placeholderTextColor="#666"
+              />
+            </View>
+          </View>
+
+          <View style={[styles.mapPickerFooter, { backgroundColor: 'rgba(0,0,0,0.95)' }]}>
             <Ionicons name="location" size={16} color="#FF3B30" />
-            <ThemedText style={{ color: '#FFF', fontSize: 12, marginLeft: 6, flex: 1 }}>
+            <ThemedText style={{ color: '#999', fontSize: 11, marginLeft: 6, flex: 1 }}>
               {`Lat: ${tempLatitude.toFixed(5)}, Lon: ${tempLongitude.toFixed(5)}`}
             </ThemedText>
           </View>
@@ -778,5 +824,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     gap: 4,
+  },
+  mapPickerInputsContainer: {
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#222',
+  },
+  mapPickerInput: {
+    height: 40,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#444',
+    backgroundColor: '#222',
+    color: '#FFF',
+    paddingHorizontal: 12,
+    fontSize: 14,
+    marginTop: 4,
   },
 });
