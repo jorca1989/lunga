@@ -28,17 +28,16 @@ export default function WelcomeScreen() {
     <LinearGradient colors={backgroundGradient} style={styles.container}>
       <SafeAreaView style={styles.safe}>
         <View style={styles.content}>
-          {/* Top Brand Hero Section */}
-          <View style={styles.heroSection}>
-            <Image
-              source={{ uri: 'https://pub-2e19cd5eed3b430fbd424824137b6bde.r2.dev/Lunga%20Logo.png' }}
-              style={{ width: 180, height: 180, resizeMode: 'contain', marginBottom: Spacing.three }}
-            />
-            <ThemedText style={styles.appName}>Lunga</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
-              Melhorando Angola, uma ocorrência de cada vez
-            </ThemedText>
-          </View>
+          {/* Logo */}
+          <Image
+            source={{ uri: 'https://pub-2e19cd5eed3b430fbd424824137b6bde.r2.dev/Lunga%20Logo.png' }}
+            style={{ width: 180, height: 180, resizeMode: 'contain' }}
+          />
+
+          {/* Tagline */}
+          <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
+            Melhorando Angola, uma ocorrência de cada vez
+          </ThemedText>
 
           {/* Actions Section */}
           <View style={styles.actions}>
@@ -81,7 +80,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.four,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: Spacing.five,
+    gap: Spacing.three,
   },
   heroSection: {
     alignItems: 'center',
@@ -107,10 +106,10 @@ const styles = StyleSheet.create({
   },
   tagline: {
     fontSize: 14,
-    marginTop: Spacing.one,
     textAlign: 'center',
     fontWeight: '500',
     lineHeight: 20,
+    paddingHorizontal: Spacing.two,
   },
   descCard: {
     marginVertical: Spacing.four,
@@ -125,7 +124,7 @@ const styles = StyleSheet.create({
   actions: {
     gap: Spacing.two,
     width: '100%',
-    marginTop: Spacing.three,
+    marginTop: Spacing.one,
   },
   primaryPressable: {
     width: '100%',

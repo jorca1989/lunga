@@ -46,18 +46,23 @@ export default function SignInScreen() {
 
     setLoading(true);
     try {
+      console.log("[SignIn] Attempting login for:", email.trim());
       const result = await signIn.create({
         identifier: email.trim(),
         password,
       });
+      console.log("[SignIn] Result status:", result.status);
 
       if (result.status === 'complete') {
+        console.log("[SignIn] Login complete. Activating session:", result.createdSessionId);
         await setActive({ session: result.createdSessionId });
         router.replace('/');
       } else {
+        console.log("[SignIn] Login status not complete:", JSON.stringify(result, null, 2));
         Alert.alert('Erro', `Não foi possível fazer login (Estado: ${result.status}). Tente novamente.`);
       }
     } catch (err: any) {
+      console.error("[SignIn] Auth error caught:", err);
       const code = err?.errors?.[0]?.code;
       if (code === 'form_password_incorrect') {
         setPasswordError('Senha incorrecta. Tente novamente.');
