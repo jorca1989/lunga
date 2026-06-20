@@ -46,25 +46,56 @@ export default function SignInScreen() {
 
     setLoading(true);
     try {
-      console.log("[SignIn] Attempting login for:", email.trim());
+      console.log("[SignIn] === DIAGNOSTIC START ===");
+      console.log("[SignIn] publishableKey configured:", !!clerkPublishableKey);
+      console.log("[SignIn] useSignIn hook return keys:", Object.keys(useSignInResult || {}));
+      console.log("[SignIn] typeof signIn:", typeof signIn);
+      if (signIn) {
+        console.log("[SignIn] signIn keys:", Object.keys(signIn));
+        console.log("[SignIn] signIn prototype properties:", Object.getOwnPropertyNames(Object.getPrototypeOf(signIn)));
+      }
+
+      console.log("[SignIn] Calling signIn.create for identifier:", email.trim());
       const result = await signIn.create({
         identifier: email.trim(),
         password,
       });
+
+      console.log("[SignIn] typeof result:", typeof result);
+      console.log("[SignIn] result is null?", result === null);
+      if (result) {
+        console.log("[SignIn] result keys:", Object.keys(result));
+        console.log("[SignIn] result constructor:", result.constructor?.name);
+        console.log("[SignIn] result prototype properties:", Object.getOwnPropertyNames(Object.getPrototypeOf(result)));
+        
+        // Loop over all own properties
+        for (const key of Object.keys(result)) {
+          console.log(`[SignIn] result.${key} =`, (result as any)[key]);
+        }
+
+        // Try to access standard Clerk fields
+        console.log("[SignIn] result.status:", (result as any).status);
+        console.log("[SignIn] result.createdSessionId:", (result as any).createdSessionId);
+        console.log("[SignIn] result.error:", (result as any).error);
+        console.log("[SignIn] result.signIn:", (result as any).signIn);
+        if ((result as any).signIn) {
+          console.log("[SignIn] result.signIn status:", (result as any).signIn.status);
+          console.log("[SignIn] result.signIn createdSessionId:", (result as any).signIn.createdSessionId);
+        }
+      }
+      console.log("[SignIn] === DIAGNOSTIC END ===");
 
       if (result.error) {
         throw result.error;
       }
 
       const signInResource = result.signIn || result;
-      console.log("[SignIn] Resolved status:", signInResource?.status);
-
       if (signInResource && signInResource.status === 'complete') {
         console.log("[SignIn] Login complete. Activating session:", signInResource.createdSessionId);
         await setActive({ session: signInResource.createdSessionId });
         router.replace('/');
       } else {
-        console.log("[SignIn] Login status not complete:", JSON.stringify(result, null, 2));
+        console.log("[SignIn] Login status not complete. Resolved status:", signInResource?.status);
         Alert.alert('Erro', `Não foi possível fazer login (Estado: ${signInResource?.status || 'desconhecido'}). Tente novamente.`);
       }
     } catch (err: any) {
