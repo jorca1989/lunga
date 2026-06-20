@@ -27,13 +27,14 @@ export default function WelcomeScreen() {
   return (
     <LinearGradient colors={backgroundGradient} style={styles.container}>
       <SafeAreaView style={styles.safe}>
-        <View style={[styles.content, { justifyContent: 'space-around' }]}>
+        <View style={styles.content}>
           {/* Top Brand Hero Section */}
           <View style={styles.heroSection}>
             <Image
               source={{ uri: 'https://pub-2e19cd5eed3b430fbd424824137b6bde.r2.dev/Lunga%20Logo.png' }}
-              style={{ width: 140, height: 140, resizeMode: 'contain', marginBottom: Spacing.three }}
+              style={{ width: 180, height: 180, resizeMode: 'contain', marginBottom: Spacing.three }}
             />
+            <ThemedText style={styles.appName}>Lunga</ThemedText>
             <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
               Melhorando Angola, uma ocorrência de cada vez
             </ThemedText>
@@ -78,12 +79,13 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: Spacing.four,
-    justifyContent: 'space-between',
-    paddingVertical: Spacing.six,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.five,
   },
   heroSection: {
     alignItems: 'center',
-    marginTop: Spacing.five,
+    width: '100%',
   },
   logoCircle: {
     width: 120,
@@ -101,12 +103,14 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     letterSpacing: -1,
     color: '#FCD116',
+    marginBottom: Spacing.one,
   },
   tagline: {
     fontSize: 14,
     marginTop: Spacing.one,
     textAlign: 'center',
     fontWeight: '500',
+    lineHeight: 20,
   },
   descCard: {
     marginVertical: Spacing.four,
@@ -120,7 +124,8 @@ const styles = StyleSheet.create({
   },
   actions: {
     gap: Spacing.two,
-    marginBottom: Spacing.three,
+    width: '100%',
+    marginTop: Spacing.three,
   },
   primaryPressable: {
     width: '100%',

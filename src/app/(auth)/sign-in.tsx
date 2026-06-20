@@ -51,16 +51,11 @@ export default function SignInScreen() {
         password,
       });
 
-      if (result.error) {
-        throw result.error;
-      }
-
-      const currentSignIn = clerk.client?.signIn;
-      if (currentSignIn && currentSignIn.status === 'complete') {
-        await setActive({ session: currentSignIn.createdSessionId });
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
         router.replace('/');
       } else {
-        Alert.alert('Erro', 'Não foi possível fazer login. Tente novamente.');
+        Alert.alert('Erro', `Não foi possível fazer login (Estado: ${result.status}). Tente novamente.`);
       }
     } catch (err: any) {
       const code = err?.errors?.[0]?.code;
@@ -81,17 +76,7 @@ export default function SignInScreen() {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
-          {/* Logo / hero */}
-          <View style={styles.heroSection}>
-            <Image
-              source={{ uri: 'https://pub-2e19cd5eed3b430fbd424824137b6bde.r2.dev/Lunga%20Logo.png' }}
-              style={{ width: 88, height: 88, resizeMode: 'contain', marginBottom: Spacing.three }}
-            />
-            <ThemedText style={styles.appName}>Lunga</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
-              Melhorando Angola, uma ocorrência de cada vez
-            </ThemedText>
-          </View>
+          <View style={{ height: Spacing.four }} />
 
           {/* Card */}
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>

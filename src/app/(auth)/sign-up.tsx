@@ -96,14 +96,14 @@ export default function SignUpScreen() {
 
       if (result.error) throw result.error;
 
-      // Read state directly from the mutated signUp object to avoid stale closures
-      if (signUp.status === 'complete') {
-        await setActive({ session: signUp.createdSessionId });
+      // Read state directly from the returned result object to avoid stale closures
+      if (result.status === 'complete') {
+        await setActive({ session: result.createdSessionId });
         router.replace('/');
       } else {
-        const statusStr = signUp.status;
-        const missingFields = signUp.missingFields ? JSON.stringify(signUp.missingFields) : 'nenhum';
-        const unverifiedFields = signUp.unverifiedFields ? JSON.stringify(signUp.unverifiedFields) : 'nenhum';
+        const statusStr = result.status;
+        const missingFields = result.missingFields ? JSON.stringify(result.missingFields) : 'nenhum';
+        const unverifiedFields = result.unverifiedFields ? JSON.stringify(result.unverifiedFields) : 'nenhum';
         Alert.alert(
           'Erro de Registo',
           `Verificação incompleta.\nEstado: ${statusStr}\nCampos em falta: ${missingFields}\nCampos não verificados: ${unverifiedFields}`
@@ -207,16 +207,7 @@ export default function SignUpScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-          <View style={styles.heroSection}>
-            <Image
-              source={{ uri: 'https://pub-2e19cd5eed3b430fbd424824137b6bde.r2.dev/Lunga%20Logo.png' }}
-              style={{ width: 88, height: 88, resizeMode: 'contain', marginBottom: Spacing.three }}
-            />
-            <ThemedText style={styles.appName}>Lunga</ThemedText>
-            <ThemedText type="small" themeColor="textSecondary" style={styles.tagline}>
-              Melhorando Angola, uma ocorrência de cada vez
-            </ThemedText>
-          </View>
+          <View style={{ height: Spacing.four }} />
 
           <View style={[styles.card, { backgroundColor: theme.backgroundElement }]}>
             {/* Name */}

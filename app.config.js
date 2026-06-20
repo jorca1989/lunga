@@ -18,19 +18,20 @@ if (!mapsKey) {
   }
 }
 
-module.exports = {
-  expo: {
-    ...require('./app.json').expo,
+module.exports = ({ config }) => {
+  return {
+    ...config,
     android: {
-      ...require('./app.json').expo.android,
+      ...config.android,
       config: {
+        ...config.android?.config,
         googleMaps: {
           apiKey: mapsKey || "",
         },
       },
     },
     plugins: [
-      ...(require('./app.json').expo.plugins || []),
+      ...(config.plugins || []),
       [
         "react-native-maps",
         {
@@ -40,5 +41,5 @@ module.exports = {
       "expo-secure-store",
       "@clerk/expo",
     ],
-  },
+  };
 };
